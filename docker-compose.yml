@@ -1,0 +1,81 @@
+#Guide: http://ruddra.com/2016/08/14/docker-django-nginx-postgres/index.html
+version: '3.1'
+
+services:
+  nginx:
+    image: nginx:1.15.1
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - .:/src
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - web
+
+  db:
+    image: mdillon/postgis
+    container_name: postgis
+    restart: unless-stopped
+    environment:
+        POSTGRES_USER: user
+        POSTGRES_PASSWORD: password
+        POSTGRES_DB: rets
+    ports:
+      - "5432:5432"      
+  web:
+    env_file: docker.env
+    container_name: web
+    restart: always
+    build: .
+    #command: bash -c "gunicorn RETS_Manager.wsgi -b 0.0.0.0:80 --user=www-data --group=www-data"
+    command: bash -c "python manage.py makemigrations --merge && python manage.py migrate && gunicorn RETS_Manager.wsgi -b 0.0.0.0:80"
+    volumes:
+      - .:/src
+      - /media:/media  
+    depends_on:
+      - db    
+    links:
+      - redis
+
+  redis:
+    image: redis:4.0.10
+    container_name: redis
+    restart: always
+
+  ddf_worker:
+    build: .
+    container_name: ddf_worker
+    restart: always
+    command: bash -c "celery -A ddf_manager.ddf worker --loglevel=Info --concurrency=1 -n ddfworker1@%h -E --hostname rmn"
+    volumes:
+      - .:/src
+      - /media:/media  
+    depends_on:
+      - redis
+      - db  
+        # - web
+    links:
+      - redis
+      - web
+      - db  
+
+
+  ddf_beat:
+    build: .
+    container_name: ddf_beat
+    restart: always
+    environment:
+      - C_FORCE_ROOT=true
+    command: bash -c "celery -A ddf_manager.ddf beat --pidfile="
+    volumes:
+      - .:/src
+    depends_on:
+      - redis
+      - db
+    links:
+      - redis
+      - web
+      - db  
