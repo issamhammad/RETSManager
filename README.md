@@ -1,5 +1,3 @@
-Welcome to RETS Manager
-
 Introduction
 -----------------------------------------------------------------------------------------------------------------------------
 RETS Manager is a production ready framework for reading, storing and syncing real-estate data including images.
@@ -81,27 +79,27 @@ Project Structure
 First: /ddf_manager
 This app contains the following two folder and files:
 
-1.    /rets_lib/: a modified version of the tiny RETS reader from https://github.com/refindlyllc/rets/tree/master/rets
-2.    /ddf_client/*: Is the core ddf reader, it uses rets_lib to read the data from the RETS server, it has the following files:
+    1.    /rets_lib/: a modified version of the tiny RETS reader from https://github.com/refindlyllc/rets/tree/master/rets
+    2.    /ddf_client/*: Is the core ddf reader, it uses rets_lib to read the data from the RETS server, it has the following files:
 
-    a-    ddf_streamer.py: responsible for reading the transactional data from the RETS server. This includes retrieving the master-list for the ids of all the listings, reading listings since a specific time_stamp, and retirive specific listing by id.
-    b-    ddf_s3.py: responsible for downloading images from DDF and save them to S3
-    c-    ddf_media.py: responsible for downloading images from DDF and save them locally.
-    d-    ddf_client.py, defines streamer and s3 classes to complete the data fetching.
+        a-    ddf_streamer.py: responsible for reading the transactional data from the RETS server. This includes retrieving the master-list for the ids of all the listings, reading listings since a specific time_stamp, and retirive specific listing by id.
+        b-    ddf_s3.py: responsible for downloading images from DDF and save them to S3
+        c-    ddf_media.py: responsible for downloading images from DDF and save them locally.
+        d-    ddf_client.py, defines streamer and s3 classes to complete the data fetching.
 
-3.    Manager.py: Connects the Django models and the media storage to the ddf_client. Manages all data and images syncing.
+    3.    Manager.py: Connects the Django models and the media storage to the ddf_client. Manages all data and images syncing.
 
-4.    db_write.py: Is a file used by manager.py to interface with Django Model.
+    4.    db_write.py: Is a file used by manager.py to interface with Django Model.
 
-5.    db_mapping.py: Is a file used by db_write to map the Python Dictionaries retrieved using the DDF Client to the appropriate fields in DB.
+    5.    db_mapping.py: Is a file used by db_write to map the Python Dictionaries retrieved using the DDF Client to the appropriate fields in DB.
 
-6.    db_summary.py: Used to add geolocation and other additional data.
+    6.    db_summary.py: Used to add geolocation and other additional data.
 
-7.    ddf.py: Used by Celery for running the DDF Read.
+    7.    ddf.py: Used by Celery for running the DDF Read.
 
-8.    ddf_logger.py: Logging settings.
+    8.    ddf_logger.py: Logging settings.
 
-9.    Settings.py: Contains DDF app settings.
+    9.    Settings.py: Contains DDF app settings.
 
 Second: /web_app
 
