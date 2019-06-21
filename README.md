@@ -1,3 +1,5 @@
+Developed by: Issam Hammad (issam.hammad at gmail dot com)
+-------------------------------------------------------------------------------------------------------------------------------
 Introduction
 -----------------------------------------------------------------------------------------------------------------------------
 RETS Manager is a production ready framework for reading, storing and syncing real-estate data including images.
@@ -18,6 +20,7 @@ https://github.com/refindlyllc/rets
 DDF documenation from CREA can be found under:
 https://www.crea.ca/wp-content/uploads/2016/02/Data_Distribution_Facility_Data_Feed_Technical_Documentation.pdf
 
+-------------------------------------------------------------------------------------------------------------------------------
 RETS server setup
 -----------------------------------------------------------------------------------------------------------------------------
 If you are using the Canadian DDF, this framework is ready for deployment.
@@ -34,45 +37,24 @@ The web_app/models.py file has to be modified according to the structure of your
 Also, the ddf_manager/db_mapping.py file has to be adjusted.
 Other changes in the ddf_manager might be required.
 
+-------------------------------------------------------------------------------------------------------------------------------
 Enabling S3
 ------------------------------------------------------------------------------------------------------------------------------
 To enable S3 for images go to ddf_manager/aws_settings.py and enter your AWS info.
 Also, make sure that S3 is enabled under ddf_manager/setting.py by setting 's3_reader = True'
 
+-------------------------------------------------------------------------------------------------------------------------------
 Local Media Storage
 ------------------------------------------------------------------------------------------------------------------------------
 For local media storage make sure s3 is disabled 's3_reader = False'
 Set the Media URL under ddf_manager/setting.py 'MEDIA_DIR'
 
-Operating Modes
 -------------------------------------------------------------------------------------------------------------------------------
-This framework can be used in two modes:
-
-#1- Fully automated updates using a combination of Docker-Compose + Redis + Celery. This enables automatic periodic updates.
-
-To use in the fully automated mode, install docker-compose then build and run the containers:
---docker-compose build
---docker-compose up
-
-Make sure to enable DOCKER=True under RETS_Manager/settings.py. This will switch the database from SQLite to PostgreSQL
-
-Goto ddf_manager/ddf.py modify the settings of the celery worker including the update frequency
-
-Digital Ocean provides a docker ready instance which can be used
-https://marketplace.digitalocean.com/apps/docker
-
-#2- By local deployment as Django app (For manual selective data fetching).
-
-Simply use the project files as a Django app after installing all the requirements (requirements.txt).
-Make sure to apply migrations to create the database then run (manage.py runserver)
-If you see this documentation on the home page it means you have successfully deployed the app.
-
-To read the data from the RETS server go to <django_app_server>/test/
-
 Logging
 -------------------------------------------------------------------------------------------------------------------------------
 Detailed logging for the updates will be recorded under ddf_client.log
 
+-------------------------------------------------------------------------------------------------------------------------------
 Project Structure
 -------------------------------------------------------------------------------------------------------------------------------
 
@@ -106,3 +88,103 @@ Second: /web_app
 This folder contains an initial Django app that can be expanded to a full web interface.
 
 The app contains the models as per the CREA DDF structure under models.py.
+
+-------------------------------------------------------------------------------------------------------------------------------
+Operating Modes
+-------------------------------------------------------------------------------------------------------------------------------
+This framework can be used in two modes:
+
+
+#1- By local deployment as Django app (For manual selective data fetching).
+
+    Simply use the project files as a Django app after installing all the requirements (requirements.txt).
+    Good for research use where automatic updates are not required.
+
+#2- Fully automated updates using a combination of Docker-Compose + Redis + Celery + Nginx. This enables automatic periodic updates.
+
+    Make sure to enable DOCKER=True under RETS_Manager/settings.py. This will switch the database from SQLite to PostgreSQL
+
+    Goto ddf_manager/ddf.py modify the settings of the celery worker including the update frequency
+
+    Good for production enviroment where automatic updates for the database and the images are required.
+
+    Can be converted to fully functioning real-estate website by just building a web_interface using the web_app.
+
+    This was tested using Digital Ocean Docker instance.
+    https://marketplace.digitalocean.com/apps/docker
+
+Please refer to the next section for details about both modes.
+
+-------------------------------------------------------------------------------------------------------------------------------
+Local Installation
+-------------------------------------------------------------------------------------------------------------------------------
+This mode is for manual data retrieval. It uses the Django web server to retrieve data from the DDF into SQLite Database.
+Both S3 or Local Media storage can work under this mode.
+
+The following steps describe details on how to run this platform.
+The steps below are tested using Windows:
+
+    1- Start by creating your own virtual environment
+        $py -m venv rets
+
+    2- Activate the virtual environment
+        $cd rets
+        $Scripts\Activate
+
+    3- clone this repo
+        $git clone https://github.com/issamhammad/RETS_Manager
+
+    4- Install Requirements
+        $cd RETS_MANAGER
+        $pip install -r requirements.txt
+    5- Make Django migrations to web_app
+        $py manage.py makemigrations web_app
+    6- Apply Migrations
+        $py manage.py migrate
+    7- Startserver
+        $py manage.py runserver [port]
+    8- Using google chrome go to:
+        http://127.0.0.1:[port]/
+
+    9- If the documentation was loaded then the deployment was successful.
+
+    10- Try a sample update using http://127.0.0.1:[port]/test/
+        **This step will use a sample free username/password by CREA to download sample data and images.
+
+    11- Note that CREA server for samples login is glitchy. So you might have to refresh the page more than once to get results.
+        ** You might get this error "RETS Server Failure, Returned Code: 20701, Message: Not Logged In"
+
+    12- After the test is completed. The page will show the log file with the update status.
+
+    13- If the operation was successful you will find a newly created folder [media] in your root DIR
+
+    14- Also you can use any SQLite browser to check your DB. a new database file is created under the root DIR.
+
+-------------------------------------------------------------------------------------------------------------------------------
+Docker Installation: (This is for production-ready deployments).
+-------------------------------------------------------------------------------------------------------------------------------
+
+This enables fully automated periodic updates using a combination of Docker-Compose + Redis + Celery + Nginx.
+
+This mode is production ready and a web-interface can be integrated with it by modifying the web_app to have a fully functioning web site
+
+The steps in this section were tested using Digital Ocean Docker Instance (Ubuntu 18.04)
+https://marketplace.digitalocean.com/apps/docker
+For other platforms installing docker and docker-compose is a prerequisite.
+
+    1- Create this Digital Ocean Instance and log in using ssh.
+
+    2- Clone the repo using '$git clone https://github.com/issamhammad/RETS_Manager'
+
+    3- $cd RETS_Manager
+
+    4- Edit RETS_Manager/setting.py to enable DOCKER=TRUE (This will enable PostgreSQL database which is used via a docker-container rather than the local SQLite)
+
+    5- Build the docker-container using '$docker-compose build'
+
+    6- Start all containers using '$docker-compose up'
+       **Due to containers dependencies some errors will appear initially but then everything gets resolved automatically.
+
+    7- Confirm everything is working by going to <instance_ip>
+
+    8- If the documentation loads then everything should be working.
