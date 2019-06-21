@@ -1,3 +1,5 @@
+##This file is for logging settings.
+
 import logging
 #from RETS_Manager.settings import DEV
 

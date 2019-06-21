@@ -1,8 +1,8 @@
 import re
 
+###This file is used to add additional information that doesn't exist in the MLS data. Here geolocation is added using a geocoder.
+
 import geocoder
-
-
 from web_app.models import *
 from .ddf_logger import *
 

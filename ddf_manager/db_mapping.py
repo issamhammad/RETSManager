@@ -1,7 +1,10 @@
 from web_app.models import *
 
-#table_children:
-#(Table Name in DDF, Table Object in DB, Table fields key in db_fields, children dictionary as per DDF Standard)
+###This file is used to map the values retrived from the ddf_client to the Django database.
+### Each list contains a tuple or more representing the following:
+###(Table Name in DDF, Table Object in DB, Table fields key in db_fields, children dictionary as per DDF Standard)
+
+
 from web_app.models import *
 
 building_children = [

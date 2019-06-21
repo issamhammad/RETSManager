@@ -1,3 +1,5 @@
+##This file to configure S3 bucket settings for media storage.
+
 AWS_ACCESS_KEY_ID = '' #KEY_ID HERE
 AWS_SECRET_ACCESS_KEY = '' #ACCESS_KEY HERE
 

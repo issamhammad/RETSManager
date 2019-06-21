@@ -1,7 +1,12 @@
 from .db_mapping import *
 from .db_summary import *
 
-#filter_fields: used to get non list and non dictionary elements of a field for saving in db. Also renames the fields if needed.
+##This file maps the DDF data retrived by the ddf_client to the proper table in the database.
+
+##To understand the structure of the mapping in this files, Please refer to the DDF documenation under:
+##https://www.crea.ca/wp-content/uploads/2016/02/Data_Distribution_Facility_Data_Feed_Technical_Documentation.pdf
+
+#filter_fields: used to get fields that are neither a list nor a dictionary elements for saving in db. Also renames the fields if needed.
 def filter_fields(input,fields,rename_fields):
     output = {}
     if input:
@@ -17,8 +22,8 @@ def filter_fields(input,fields,rename_fields):
                 output[key] = input[key]
     return output
 
-    #update_table: saves a recorded a db table.
-   #update_table(DDF_name, Table db Object, db_field, renamed_fields,**kwargs is used to pass parent object by assignment)
+#update_table: saves a recorded a db table.
+#parameters(table in ddf record, Table db Object, db_field, renamed_fields,**kwargs is used to pass parent object by assignment)
 def update_table(table,TABLE,table_fields,rename_fields=rename_fields_dict,**kwargs):
     record_obj = None
     if table:
@@ -36,7 +41,8 @@ def update_table(table,TABLE,table_fields,rename_fields=rename_fields_dict,**kwa
                 record_obj.save()
     return record_obj
 
-#listing as a dict, previous_listing_keys as a list
+#check_if_exists: used for checking if a listing exists in db.
+#listing as a dict, previous_listing_keys as a list of strings
 def check_if_exists(listing,previous_listing_keys):
     if listing['ID'] in previous_listing_keys:
         obj = Property.objects.get(DDF_ID=listing['ID'])
@@ -48,9 +54,8 @@ def check_if_exists(listing,previous_listing_keys):
     else:
         return False,False,None
 
-
+##Maps all DDF tables that are children of the 'office' table in DDF to the db
 def add_office_children(office,office_obj):
-
     for (item,itemClass,item_db_fields,single_element_dict) in office_children:
         if item in office.keys():
             if isinstance(office[item], dict) and single_element_dict in office[item].keys():
@@ -59,9 +64,8 @@ def add_office_children(office,office_obj):
                 table = office[item]
             update_table(table, itemClass, db_fields[item_db_fields],Office=office_obj)
 
-
+##Maps agent details table from the DDF to the db
 def add_agents_details(agents,property_obj):
-
     if not isinstance(agents,list):
         agents = [agents]
 
@@ -82,7 +86,7 @@ def add_agents_details(agents,property_obj):
                     table = agent[item]
                 update_table(table, itemClass, db_fields[item_db_fields],Agent=agent_obj)
 
-
+##Maps all DDF tables that are children of the 'building' table in DDF to the db
 def add_building_children(building,building_obj,property_obj):
 
     #add children as per db_mapping
@@ -94,7 +98,7 @@ def add_building_children(building,building_obj,property_obj):
                 table = building[item]
             update_table(table, itemClass, db_fields[item_db_fields],Property=property_obj)
 
-
+##Maps all DDF tables that are children of the 'property' table in DDF to the db
 def add_property_children(listing,property_obj):
 
     #property_info is PropertyDetails Fields in DDF
@@ -121,7 +125,9 @@ def add_property_children(listing,property_obj):
                 table = listing[item]
             update_table(table, itemClass, db_fields[item_db_fields],Property=property_obj)
 
-#update_records receives new_listings data as dict
+#update_records is the main function to update the DDF data which is structured as dictionary to the db tables.
+#It received 'new_listings' as a list of dictionaries and it applied the db updates accordingly.
+#This function updates only records and is not responsible on handling photos.
 def update_records(new_listings):
     #read existings keys based an IDs
     previous_listings_keys = list(Property.objects.values_list('DDF_ID', flat=True).filter())

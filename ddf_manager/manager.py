@@ -7,38 +7,18 @@ from .aws_settings import *
 from . import db_write
 #from .db_summary import *
 from .ddf_logger import *
-from .ddf_client.ddf_client import RetsClient
+from .ddf_client.ddf_client import DDFClient
 from .settings import *  # Local ddf_manager Settings.
 from django.db import transaction
 
-rc = RetsClient(MEDIA_DIR,format_type='STANDARD-XML',s3_reader=s3_reader)
+#define DDFClient object to retrive DDF Data
+ddf_c = DDFClient(MEDIA_DIR,format_type='STANDARD-XML',s3_reader=s3_reader)
 
+#Starts an s3 session if S3 Reader is used
 if s3_reader:
     s3_session = boto3.session.Session()
 
-#save bin file(file_name,updated_data)
-def save_to_file(file,data):
-    try:
-        with open(file,'wb') as f:
-            pickle.dump(data, f)
-    except Exception as e:
-        logger.error(e)
-        logger.error("Error in Saving BIN File")
-
-#gets file name and add path and extension then load bin from file.
-def load_bin_file(file):
-    return load_from_file(BIN_DIR+ '/' + file + '.bin')
-
-#used by load_bin_file. reads bin file and returns dict.
-def load_from_file(file):
-    try:
-        with open(file, 'rb') as f:
-            return pickle.load(f)
-    except Exception as e:
-        logger.error(e)
-        logger.error("Error in Loading BIN File")
-
-#writes records to DB, calls db_write module.
+#writes records to DB. Passes ddf_clients listings data to the db_write.py module to write it to the db
 def update_records(data):
     return db_write.update_records(data['Listings'])
 
@@ -47,7 +27,7 @@ def erase_db():
     Property.objects.all().delete()
     DDF_LastUpdate.objects.all().delete()
 
-#updates lastupdate time stamp
+#updates lastupdate time stamp in the database so the update can resume from this point in time during next update.
 def write_last_update(last_update):
     try:
         last_update_obj,result = DDF_LastUpdate.objects.get_or_create(UpdateType='DDF')
@@ -66,12 +46,10 @@ def read_last_update():
         timestamp = DDF_LastUpdate.objects.get(UpdateType='DDF').LastUpdate
     except DDF_LastUpdate.DoesNotExist:
         logger.warning("adding initial timestamp")
-        #add_initial_timestamp()
         return None
-        #timestamp = DDF_LastUpdate.objects.get(UpdateType='DDF').LastUpdate
     return timestamp
 
-#deletes removed listings from db. removed_listings are identified by ddf_client
+#deletes removed listings from db. removed_listings are identified by the ddf_client
 def delete_records(removed_listings):
     try:
         count,deleted = Property.objects.filter(DDF_ID__in=removed_listings).delete()
@@ -82,7 +60,7 @@ def delete_records(removed_listings):
         logger.error("Error in Deleting old removed records")
         return False
 
-#get list of listing photos DIRs
+#get lists of listing photos DIRs either locally or using S3 bucket
 def get_current_photos_dirs(s3=None):
     dir =[]
     if s3:
@@ -109,12 +87,11 @@ def get_current_photos_dirs(s3=None):
         try:
             dir =  next(os.walk(LISTING_DIR))[1]
         except Exception as e:
-            rc.media_handler.create_dir(LISTING_DIR)
+            ddf_c.media_handler.create_dir(LISTING_DIR)
             dir = next(os.walk(LISTING_DIR))[1]
     return dir
 
-
-
+#retrive all photos info from the db for the purpose of comparasion against the new photo info from the ddf.
 def get_photos_info():
     try:
         photos_info = {}
@@ -166,21 +143,22 @@ def get_listing_photos_file_list(listing_id,s3=None):
 def get_db_listing_ids():
     return list(Property.objects.values_list('DDF_ID', flat=True).filter())
 
-#remove deleted photos listings DIRs
+#remove deleted photos listings DIRs by comparing the existing DIRs againts records in the DB. Folders with no db record will be deleted.
+#db records changes according to the ddf update where some records get removed from the MLS server due to expiry
 def delete_removed_photos_dirs(current_photos_dir_ids):
     try:
         listings_ids = get_db_listing_ids() #get current listing IDs from DB
         #get listings that has folders but doesn't exists in DB
         remove_photos_dir =[listing for listing in current_photos_dir_ids if listing not in listings_ids]
         logger.info("Total Listings %s, Total Photos DIR %s, DIR Photos to be removed %s",len(listings_ids),len(current_photos_dir_ids),len(remove_photos_dir))
-        rc.remove_old_listings_photos(remove_photos_dir) #remove deleted listings DIRs
+        ddf_c.remove_old_listings_photos(remove_photos_dir) #remove deleted listings DIRs
         return True
     except Exception as e:
         logger.error(e)
         logger.error("Error in get_removed_photos_dirs")
         return False
 
-
+#returns a list of agent photos in S3 or locally.
 def get_agent_photos_list(s3=None):
     agent_photos=[]
     if s3:
@@ -209,7 +187,7 @@ def get_agent_photos_list(s3=None):
             logger.error(e)
     return agent_photos
 
-#download agent photos
+#sync_agent_photos: is for download agent photos
 #Problem: Some agents do not have photos this function keep recognizing them as missing photos.
 def sync_agents_photos(s3=None):
     try:
@@ -220,9 +198,9 @@ def sync_agents_photos(s3=None):
         missing_photos = [photo for photo in agents_in_db if str(photo)+".jpg" not in agents_in_dir]
         removed_photos = [photo_file for photo_file in agents_in_dir if photo_file.split('.')[0] not in agents_in_db ]
         for agent_photo_id in missing_photos: #if missing download --Removed as we don't have track of non available photos, this will cause delay each update.
-           rc.media_handler.get_agent_photo(agent_photo_id)
+           ddf_c.media_handler.get_agent_photo(agent_photo_id)
         # for photo_file in removed_photos: #if removed delete from files
-        #     rc.media_handler.delete_file(AGENTS_DIR + '/' + photo_file)
+        #     ddf_c.media_handler.delete_file(AGENTS_DIR + '/' + photo_file)
         logger.info("Agent Photos Sync was completed Successfully")
         return True
     except Exception as e:
@@ -230,12 +208,11 @@ def sync_agents_photos(s3=None):
         logger.error("Error in Agents Photos Sync")
         return False
 
-#Delete removed Listing Photos and sync and any missing listing Photos
-#Limitations: 1- Doesn't check timestamps
-            # 2- Doesn't check extra individiual photos for a listing that has been removed from db.
-#Note:if used alone without ddf_client it could miss a photo update if photo name was kept the same.
-#all photos should be downloaded initially by ddf_client
+
 def sync_listing_photos(s3=None):
+    #This function makes sures all the photos are synced correctly between the db records and the media files.
+    #if db has records for photos that doesn't exists as a media file. These photos will be downloaded.
+    #It also delete photos that doesn't have a record in the db
     try:
         current_photos_dir_ids = get_current_photos_dirs(s3=s3) #read current DIRs
         if not current_photos_dir_ids:
@@ -246,9 +223,9 @@ def sync_listing_photos(s3=None):
             if listing_obj.Photos.exists(): #if listing Photos Tables exists
                 if listing_obj.DDF_ID not in current_photos_dir_ids: #if DIR is missing
                     logger.info("Listing %s Photos weren't found in Media DIR",listing_obj.DDF_ID)
-                    rc.media_handler.create_photo_dir(listing_obj.DDF_ID) #create DIR for that listing
+                    ddf_c.media_handler.create_photo_dir(listing_obj.DDF_ID) #create DIR for that listing
                     for photo_obj in listing_obj.Photos.all(): #Download all Photos
-                        rc.media_handler.get_photo(photo_obj.SequenceId,listing_obj.DDF_ID)
+                        ddf_c.media_handler.get_photo(photo_obj.SequenceId,listing_obj.DDF_ID)
                 else: #if DIR is not missing and listing Photos table exists, check photos individually
                     db_photos = list(listing_obj.Photos.values_list('SequenceId',flat=True).filter()) #list of Photos in db
                     dir_photos = get_listing_photos_file_list (listing_obj.DDF_ID,s3=s3) #photo files
@@ -256,7 +233,7 @@ def sync_listing_photos(s3=None):
                     if missing_photos: #if photo is missing
                         logger.info("Detected Missing Photos :%s for Listing:%s",missing_photos,listing_obj.DDF_ID)
                         for missing_photo in missing_photos:
-                            rc.media_handler.get_photo(missing_photo, listing_obj.DDF_ID)
+                            ddf_c.media_handler.get_photo(missing_photo, listing_obj.DDF_ID)
         logger.info("Photos Sync was completed Successfully")
         return True
     except Exception as e:
@@ -265,9 +242,12 @@ def sync_listing_photos(s3=None):
         return False
 
 
-#update_db: updated db from DDF or from dict (bin file) then updates tables, DDF update time stamp and saves new bin file.
+#update_db: updated db from DDF then updates tables,
 @transaction.atomic
 def update_db(sample=False):
+    #update_db is the primary function for reading the data from the DDF using the ddf_client and then updating the database accordingly.
+    #It triggers the photos downloads according to the new records recevied from DDF.
+    #if sample=True, only 10 records will be updated.
     try:
         skip_photos = False #Default to Download Photos
         previous_listings_keys = get_db_listing_ids() #current listings IDs
@@ -277,17 +257,14 @@ def update_db(sample=False):
             last_update = DDF_LastUpdate.objects.get(UpdateType='DDF').LastUpdate #read it
             skip_photos = True #skip photos, will rely on the syncing
 
-        new_last_update = rc.get_gmt_time() #get new time stamp
+        new_last_update = ddf_c.get_gmt_time() #get new time stamp
         previous_photos = get_photos_info()
         if sample :
-            updated = rc.update(last_update=last_update, previous_listings_keys=previous_listings_keys,
+            updated = ddf_c.update(last_update=last_update, previous_listings_keys=previous_listings_keys,
                                 ignore_restrictions=True,limit=10, previous_photos=previous_photos)
         else:
-            updated = rc.update(last_update=last_update, previous_listings_keys=previous_listings_keys,
+            updated = ddf_c.update(last_update=last_update, previous_listings_keys=previous_listings_keys,
                                 ignore_restrictions=True, previous_photos=previous_photos,skip_photos=skip_photos)
-
-        # else: # if updating from file
-        #     new_last_update = updated['LastUpdate'] #get update time stamp from dict (bin file)
 
         if not updated['Pass']: #if update failed by DDF client
         #if not updated['Status']:
@@ -306,16 +283,17 @@ def update_db(sample=False):
         logger.error("Error in database update changes have been ignored")
         return False
 
-#update_server: Updates DB from DDF or from dict (Loaded Bin) and Sync the Photos
-#db or photos update can be disabled
-def update_server(enable_db_update=True,enable_photos_sync=True,sample=False):
-    try:
-        rc.login()
-        if enable_db_update:
-            result = update_db(sample)
-        else:
-            result = True
 
+def update_server(enable_photos_sync=True,sample=False):
+    # update_server: is the parent function for updating the DDF records and photos.
+    # It does the following
+    # 1- Login
+    # 2- calls update_db function to update DDF records and photos from the MLS server into the DB including the media files.
+    # 3- applies photo_syncing to confirm all photos are synced and upto date.
+    # 4- Logout.
+    try:
+        ddf_c.login()
+        result = update_db(sample)
         if result:
             if enable_photos_sync and not sample:
                 s3=None
@@ -323,12 +301,12 @@ def update_server(enable_db_update=True,enable_photos_sync=True,sample=False):
                     s3 = s3_session.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, #S3 has to be defined here otherwise, connection will drop.
                                            aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
                 sync_listing_photos(s3=s3)
-                # sync_agents_photos(s3=s3) #Enable only at first ever Download. Causes Delays as it checks for Photos that doesn't exists.
+                # sync_agents_photos(s3=s3) #Enable only at first Download. Causes Delays as it checks for Photos that doesn't exists.
         else:
             logger.info("Update Failed")
-            rc.logout()
+            ddf_c.logout()
             return False
-        rc.logout()
+        ddf_c.logout()
         logger.info("Server updated successfully")
 
     except Exception as e:
@@ -336,7 +314,7 @@ def update_server(enable_db_update=True,enable_photos_sync=True,sample=False):
         logger.error("Error in update_server")
         return False
 
-#To initialize ddf_timestamp table
+#To initialize ddf_timestamp in the database.
 def add_initial_timestamp():
     DDF_LastUpdate.objects.update_or_create(id=1, defaults={'LastUpdate': '2014-08-17T18:13:22Z', 'UpdateType': 'DDF'})
 

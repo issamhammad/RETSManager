@@ -11,7 +11,6 @@ def home_page(request):
     response['Content-Type'] = 'text/plain; charset=utf8'
     return response
 
-
 def test_ddf(request):
     ddf_manager.update_server(sample=True)
     content = open(os.path.join(BASE_DIR, 'ddf_client.log')).read()
