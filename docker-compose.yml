@@ -31,7 +31,7 @@ services:
     restart: always
     build: .
     #command: bash -c "gunicorn RETS_Manager.wsgi -b 0.0.0.0:80 --user=www-data --group=www-data"
-    command: bash -c "python manage.py makemigrations --merge && python manage.py migrate && gunicorn RETS_Manager.wsgi -b 0.0.0.0:80"
+    command: bash -c "python manage.py makemigrations --merge  && python manage.py makemigrations web_app &&  python manage.py migrate && gunicorn RETS_Manager.wsgi -b 0.0.0.0:80"
     volumes:
       - .:/src
       - /media:/media  
