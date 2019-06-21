@@ -10,6 +10,19 @@ from ..rets_lib import Session
 
 
 class RetsClient:
+    """
+    A RetsClient object handles all the operations related to downloading listings data and images.
+        RetClient does the following
+        1- It uses a Streamer Object (ddf_streamer.py) to handle retriving listings data
+        2- It uses either MediaHandle object (ddf_media.py) or S3Handler object to download and save images either locally or to S3.
+
+    RetsClient Constructor
+    :param `media_path' : Root DIR for media files as 'string'
+    :param 'sample': if True uses sample login_url, username and password rather than the regular one (refer to ../settings.py)
+    :param `format_type' : Can take 'STANDARD-XML' or 'COMPACT_DECODED'. 'COMPACT-DECODED' is not tested.
+    :param `s3_reader' : Boolean to determine whether the files are stored locally or using S3. (if using S3, S3 setting can be set under ../aws_settings.py)
+    """
+
     def __init__(self, media_path,sample=False,format_type='STANDARD-XML',s3_reader=True):
         try:
             if sample:
@@ -29,20 +42,27 @@ class RetsClient:
             logger.error(e)
 
     def login(self):
+        """Uses Streamer Object to login"""
         return self.streamer.login()
              
     def logout(self):
+        """Uses Streamer Object to logout"""
         return self.streamer.logout()
 
     @staticmethod
     def get_gmt_time(**kwargs):
+        """Gets GMT time and converts it to 'YYYY-MM-DDTHH:MM:SSZ' format"""
         time_now = datetime.utcnow()
         time_diff = timedelta(days=3)
         time_adj = time_now - time_diff
         return time_adj.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    #used only if restrictions are applied to confirm timestamp is valid and not too old based on MAX_UPDATE_TIME
+
     def validate_time_update(self,last_update,ignore_restrictions=False):
+        """Validates last_update time stamp. Raises an error if the time is in the future
+            Also, if restrictions are applied it confirms that timestamp is valid and is not too old based on MAX_UPDATE_TIME under (../setting.py)
+            This restriction is required by certain MLS servers"""
+
         try:
             time_format = '%Y-%m-%dT%H:%M:%SZ'
             time_now = time.mktime(time.strptime(self.get_gmt_time(),time_format))
@@ -60,9 +80,10 @@ class RetsClient:
             logger.error("Failed to validate time, please re-check your last_update value, last_update=%s time format should be=%s",last_update, time_format)
             return False
 
-    #gets a listings input and return a list of IDs
+
     def get_listings_keys(self, input_list):
-        #print(input_list)
+        """Returns a list of listings ids (string) from a list of dictionaries containing all listings information"""
+
         if self.format == 'COMPACT-DECODED':
             id_key = 'ListingKey'
         else:

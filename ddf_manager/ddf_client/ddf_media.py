@@ -6,6 +6,19 @@ from ..ddf_logger import *
 
 class MediaHandler:
 
+    """
+    A MediaHandler Object is used for handling local storage of media files (images). For S3 please use refer to ddf_s3.py.
+    This object does the following:
+        1- Uses ets_lib Session Object (under rets_lib/session.py) to retrive photos from the MLS server
+        2- create/delete and check existence of DIRs
+        3- create/delete images.
+
+    MediaHandler Constructor
+    :param `media_dir' : Root DIR for media
+    :param `rets_session`: rets_lib Session Object
+    :param `format_type' : Can take 'STANDARD-XML' or 'COMPACT_DECODED'. 'COMPACT-DECODED' is not tested.
+    """
+
     def __init__(self, media_dir, rets_session,format_type='STANDARD-XML'):
         try:
             self.rets_session = rets_session
@@ -20,6 +33,10 @@ class MediaHandler:
 
     @staticmethod
     def create_dir(dir_path):
+
+        """"creates local DIR based on dir_path
+            Return True if dir was created"""
+
         try:
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
@@ -31,6 +48,8 @@ class MediaHandler:
 
     @staticmethod
     def delete_dir(dir_path):
+        """"deletes local DIR based on dir_path
+            Return True if DIR was created"""
         try:
             if os.path.exists(dir_path):
                 shutil.rmtree(dir_path)
@@ -43,6 +62,8 @@ class MediaHandler:
             return False
 
     def delete_file(self,file_path):
+        """"deletes local file based on file_path
+            Return True if the file was created"""
         try:
             os.remove(file_path)
             return True
@@ -52,6 +73,8 @@ class MediaHandler:
             return False
 
     def delete_photo_dir(self,listing_id):
+        """"deletes listings photos DIR based on listing id
+            Return True if the listings photos were deleted"""
         try:
             dir_path = self.media_dir + '/' + self.listings_path  + '/' + str(listing_id)
             return self.delete_dir(dir_path)
@@ -61,6 +84,8 @@ class MediaHandler:
             return False
 
     def create_photo_dir(self,listing_id):
+        """"creates listings photos DIR based on listing id
+            Return True if the listings photos were created"""
         try:
             dir_path = self.media_dir + '/' + self.listings_path  + '/' + str(listing_id)
             #logger.info("created DIR: %s", dir_path)
@@ -71,6 +96,8 @@ class MediaHandler:
             return False
 
     def dir_photo_exists(self,listing_id):
+        """"checks if listings photos DIR exists
+            Return True if the listings photos DIR exists"""
         try:
             dir_path = self.media_dir + '/' + self.listings_path + '/' + str(listing_id)
             if os.path.exists(dir_path):
@@ -83,6 +110,11 @@ class MediaHandler:
             return False
 
     def failed_downloads_append_all(self,photos_dict,listing_key,failed_downloads):
+        """Appends all the photos for a listing to the list of failed_downloads.
+            The appended value is a tuple (listing_id,photo_id)
+            This will be used later to retry to download these files.
+            Return True if the append was successful"""
+
         try:
             if isinstance(photos_dict, list):
                 for photo_dict in photos_dict:
@@ -96,6 +128,8 @@ class MediaHandler:
             logger.error("Error in appending Listing %s to Failed Downloads",listing_key)
 
     def prepare_folder(self,listing_key):
+        """Prepared listing photos DIR by checking first if the dir_exists, if not the folder is created
+            Returns true if the creation is successful or if the folder already exists"""
         try:
             if not self.dir_photo_exists(listing_key):
                 if not self.create_photo_dir(listing_key):
@@ -106,6 +140,9 @@ class MediaHandler:
             logger.error("Failed to prepare folder for listing:%s",listing_key)
 
     def save_photo(self,byte_stream,listing_id,photo_id=1,agent=False):
+        """Saves a listing/agent photo using the byte stream received from the MLS server.
+            The photo is named according to the photo id. Also it is saved in a folder named according to the listing id.
+            Returns true the photo was saved successfully"""
         try:
             if agent:
                 photo_path = self.media_dir + '/' + self.agents_dir + '/' + str(listing_id) + ".jpg"
@@ -121,6 +158,8 @@ class MediaHandler:
             return False
 
     def get_agent_photo(self,agent_id):
+        """Gets an agent photo from the MLS server as a byte_stream and saves it locally (using save_photo function).
+            Returns true the photo was retrieved and  saved successfully"""
         try:
             photo_downloaded = False
             photo_object = self.rets_session.get_agent_photo(agent_id)
@@ -139,6 +178,8 @@ class MediaHandler:
             return photo_downloaded
 
     def get_photo(self, photo_id, listing_key, small=False):
+        """Gets a single listing photo from the MLS server as a byte_stream and saves it locally (using save_photo function).
+            Returns true the photo was retrieved and  saved successfully"""
         try:
             photo_downloaded=False
             object_type="LargePhoto" if not small else "Photo"
@@ -159,6 +200,10 @@ class MediaHandler:
             return photo_downloaded
 
     def append_failed_photo(self,photo_id,listing_key,failed_downloads):
+        """Appends a single failed photos for a listing to the list of failed_downloads.
+            The appended value is a tuple (listing_id,photo_id)
+            This will be used later to retry to download these files.
+            Return True if the append was successful"""
         try:
             if (listing_key,photo_id) not in failed_downloads:
                 failed_downloads.append((listing_key, photo_id))
@@ -167,6 +212,9 @@ class MediaHandler:
             logger.error(e)
 
     def get_photos(self,listing,failed_downloads):
+        """retrives multiple photos for a listing then save them individually
+            Returns True if listings photos were successfully retrived and saved"""
+
         try:
             listing_key = listing['ID']
             if not self.prepare_folder(listing_key) :
@@ -189,6 +237,9 @@ class MediaHandler:
             return False
 
     def compare_photo(self,listing_key,photo_dict,prev_time_stamp):
+        """Compare a single photo for a listing with modifications (timestamp change)
+            if timestamp changes, redownload photo.
+            This comparison is needed as per the MLS guideline so photos can be redowloaded only if needed"""
         try:
             if photo_dict['LastUpdated'] != prev_time_stamp:
                 downloaded = self.get_photo(photo_dict['SequenceId'], listing_key)
@@ -200,6 +251,9 @@ class MediaHandler:
             logger.error("Failed to compare photo for Listing:%s Photo:%s", listing_key,photo_dict['SequenceId'])
 
     def compare_photos(self,listing,prev_photos_dict):
+        """Compare all photos for a listing with modifications (timestamp change)
+            if timestamp changes, redownload photos.
+            This comparison is needed as per the MLS guideline so photos can be redowloaded only if needed"""
         try:
             photos_dict_list = listing['Photo']['PropertyPhoto']
             listing_key = listing['ID']
@@ -219,6 +273,7 @@ class MediaHandler:
             logger.debug("Failed to compare photos for Listing:%s", listing_key)
 
     def download_agent_photo(self,listing):
+        """Used to download agent photo based on the listing's agent id"""
         try:
             listing_key = listing['ID']
             agent_dict_list = listing['AgentDetails']
@@ -232,6 +287,9 @@ class MediaHandler:
             logger.error("Error in getting agent photos for Listing:%s", listing_key)
 
     def download_photos(self,listings,previous_photos):
+        """Handles the process of downloading photos for a list of listings, compares photos if needed and only redownload photos with change in the timestamp
+            Returns True if the download is successful, and a lists of tuples of failed downloads with a listing_id and photo_id in each tuple"""
+
         try:
             failed_downloads = []
             for listing in listings:
@@ -263,9 +321,10 @@ class MediaHandler:
         except Exception as e:
             logger.error(e)
             logger.error("Failed to download photos for new listings")
-            return False, [], []
+            return False, []
 
     def delete_photos(self,listings_keys):
+        """ Deletes all phoros for a specific listing"""
         try:
             for listing_key in listings_keys:
                 photos_deleted = self.delete_photo_dir(listing_key)

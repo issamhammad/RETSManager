@@ -5,6 +5,16 @@ from ..ddf_logger import logger
 
 
 class Streamer:
+    """
+    A Streamer Object uses rets_lib Session Object (under rets_lib/session.py) to do the following:
+        1- Retrive the master list of all the ids of all the available listing
+        2- Retrive all active listings since a time stamp.
+        3- Manual retrival of listing by id.
+
+    Streamer Constructor
+    :param `rets_session`: rets_lib Session Object
+    :param `format_type' : Can take 'STANDARD-XML' or 'COMPACT_DECODED'. 'COMPACT-DECODED' is not tested.
+    """
 
     def __init__(self,rets_session,format_type='STANDARD-XML'):
         try:
@@ -14,6 +24,9 @@ class Streamer:
             logger.error(e)
 
     def login(self):
+        """
+        Returns True if login successful.
+        """
         try:
             logger_seperator = "=" * 75
             logger.info(logger_seperator)
@@ -29,6 +42,9 @@ class Streamer:
             return False
 
     def logout(self):
+        """
+        Returns True if logout successful.
+        """
         try:
             logout_passed = self.rets_session.logout()
             if logout_passed:
@@ -41,7 +57,13 @@ class Streamer:
             logger.error(e)
             return False
 
-    def retrieve_master_list(self,printable=False):
+    def retrieve_master_list(self):
+        """
+        Retrives the Master List containing all available listings ids. This doesn't return the full listing details, just the ids.
+        Returns:
+            1- a list of dictionaries containing the ids and other meta data.
+            2- The count (as per the source) as int.
+        """
         try:
             count = '-1'
             master_list = self.rets_session.search(resource='Property', resource_class='Property', dmql_query='(ID=*)',format=self.format)
@@ -57,8 +79,6 @@ class Streamer:
                 logger.warning("Master list Count is:%s while master list len is :%s", int(master_list["Count"]),len(master_list["Data"]))
 
             logger.info("Master List Retrieved with %s Records",int(master_list["Count"]))
-            if printable:
-                print(json.dumps(master_list, indent=1))
 
             count = master_list["Count"]
             return master_list["Data"], count
@@ -68,6 +88,18 @@ class Streamer:
             return [],count
 
     def retrieve_active_records(self,last_update,offset=0,limit=SESSION_LISTINGS_COUNT):
+        """
+        Retrives the full details of the active records since a time stamp (last_update).
+        Since the MLS API is limited to 100 records per call. The offset parameter can be used to adjust the starting record and move it accordingly in a loop
+        Parameters:
+            1- last_update: a timestamp in the form of 'YYYY-MM-DDTHH:MM:SSZ"
+            2- The offset for the first record.The API is limited to 100 records per call, so incase there is a 1000 records since that timestamp. 10 API calls are required with offsets
+                0,100,200... 900.
+            3- limit: The limit for number of active records to be retrived. Set to SESSION_LISTINGS_COUNT by default
+        Returns:
+            1- a list of dictionaries containing the full listing details
+            2- The count (as per the source) as int.
+        """
         try:
             count = '-1'
             last_updated_query = '(LastUpdated=' + last_update + ')'
@@ -91,12 +123,21 @@ class Streamer:
             return self.listings,count
 
         except Exception as e:
-            #traceback.print_exc()
             logger.error(e)
             logger.error("Failed to retreive active listings")
             return [],count
 
-    def retrieve_by_id(self,ids_list,limit=None,search_class='Property'):
+    def retrieve_by_id(self,ids_list,search_class='Property'):
+        """
+        Retrives the full details of listings according to a list of ids.
+        Since the MLS API is limited to 100 records per call. The offset parameter can be used to adjust the starting record and move it accordingly in a loop
+        Parameters:
+            1- id_list: a list of ids as as string.
+            2- search_class: Only "Property is used for this framework' other classes can be used in the future based on the MLS structure.
+        Returns:
+            1- a list of dictionaries containing the full listing details
+            2- The count (as per the source) as int.
+        """
         try:
             count = '-1'
             if ids_list:
@@ -128,8 +169,6 @@ class Streamer:
             return self.listings,count
 
         except Exception as e:
-            #traceback.print_exc()
-            #logger.error(traceback.print_exc())
             logger.error(e)
             logger.error("Failed to retreive listings by id")
             return [], count
