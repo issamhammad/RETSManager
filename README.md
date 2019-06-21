@@ -1,3 +1,4 @@
+
 Developed by: Issam Hammad (issam.hammad at gmail dot com)
 -------------------------------------------------------------------------------------------------------------------------------
 Introduction
@@ -14,7 +15,7 @@ Additionally, geocoding support is provided to store the lng/lat of the addresse
 The framework is Django ready. A web interface can be easily attached to this framework to have a fully functional website.
 It can be also used by researchers to fetch real-estate data and images directly into a database.
 
-For RETS requests. The framework a local modified copy of the RETS client under:
+For RETS requests. The framework used a local modified copy of an open-source RETS client library (rets_lib):
 https://github.com/refindlyllc/rets
 
 DDF documenation from CREA can be found under:
@@ -180,11 +181,15 @@ For other platforms installing docker and docker-compose is a prerequisite.
 
     4- Edit RETS_Manager/setting.py to enable DOCKER=TRUE (This will enable PostgreSQL database which is used via a docker-container rather than the local SQLite)
 
-    5- Build the docker-container using '$docker-compose build'
+    5- [Optional]: Adjust update period by modifying ddf_manager/ddf.py
 
-    6- Start all containers using '$docker-compose up'
+    6- Build the docker-container using '$docker-compose build'
+
+    7- Start all containers using '$docker-compose up'
        **Due to containers dependencies some errors will appear initially but then everything gets resolved automatically.
 
-    7- Confirm everything is working by going to <instance_ip>
+    8- Confirm everything is working by going to <instance_ip>
 
-    8- If the documentation loads then everything should be working.
+    9- If the documentation loads then everything should be working.
+
+    10- Following an update media files will be found under /media/
