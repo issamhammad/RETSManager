@@ -2,8 +2,8 @@
 Developed by: Issam Hammad (issam.hammad at gmail dot com)
 -------------------------------------------------------------------------------------------------------------------------------
 Introduction
------------------------------------------------------------------------------------------------------------------------------
-RETS Manager is a production ready framework for reading, storing and syncing real-estate data including images.
+-------------------------------------------------------------------------------------------------------------------------------
+RETS_Manager is a production ready framework for reading, storing and syncing real-estate data including images.
 
 With the help of a real-estate agent, this framework was built based on the Data Distribution Facility (DDF®) data structure which was created by the Canadian Real Estate Association (CREA). Reading, deleting and modifying thousands of transactional data and images were tested.
 
@@ -37,6 +37,13 @@ For data from other RETS server. Some code modifications will be required.
 The web_app/models.py file has to be modified according to the structure of your RETS server.
 Also, the ddf_manager/db_mapping.py file has to be adjusted.
 Other changes in the ddf_manager might be required.
+
+-------------------------------------------------------------------------------------------------------------------------------
+Demo
+-------------------------------------------------------------------------------------------------------------------------------
+You can see a demo for this framework using real data reader by checking: https://rentmenow.ca
+
+This framework is used in this website to retrive all the data and images.
 
 -------------------------------------------------------------------------------------------------------------------------------
 Enabling S3
