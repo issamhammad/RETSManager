@@ -41,7 +41,7 @@ Other changes in the ddf_manager might be required.
 -------------------------------------------------------------------------------------------------------------------------------
 Demo
 -------------------------------------------------------------------------------------------------------------------------------
-You can see a demo for this framework using real data reader by checking: https://rentmenow.ca
+You can see a demo for this framework using real data by checking: https://rentmenow.ca
 
 This framework is used in this website to retrive all the data and images.
 
