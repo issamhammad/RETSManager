@@ -25,16 +25,9 @@ bibliography: paper.bib
 
 RETS-Manager is a Django based platform retrieving for retrieving, storing, and syncing real-estate data and images from multiple listing service (MLS) servers. This platform was designed based on the Canadian Real Estate Association (CREA) Data Distribution Facility (DDF®) payload structure and can be easily modified to support any other MLS server. The platform converts the raw XML data of the MLS servers to a structure data in a PostgreSQL or SQLite database. It also supports storing media files either locally or on AWS S3 bucket. Additionally, the platform is ready for deployment as a Docker Container and it supports fully automation scheduled tasks using Redis and Celery.    This end-to-end solution for real-estate data can be used by researchers to obtain a clean structured data for research related to housing prices trends, predictions and statistics. Also, it can be used as a backend for real-estate websites
 
-# Mathematics
+# Motivation and Research Significance
 
-Single dollars ($) are required for inline mathematics e.g. $f(x) = e^{\pi/x}$
-
-Double dollars make self-standing equations:
-
-$$\Theta(x) = \left\{\begin{array}{l}
-0\textrm{ if } x < 0\cr
-1\textrm{ else}
-\end{array}\right.$$
+Studying real-estate market trends is extremely popular. Real-estate market health has a significant impact on the economy, therefore, analysing up-to-date real-estate data is vital and is performed by different agencies and parties. Several open-source databases were proposed for real-estate data such as [2] which was proposed by [3] and the dataset [4] which was proposed by [5]. Several Machine Learning papers have used the datasets [2] and [4] In North America, Real-estate data is stored on multiple listing service (MLS) servers owned by different regional associations. The data is stored using a unified format knows as Real Estate Transaction Standard (RETS) [1]. RETS is XML based, therefore all MLS Application programming interface (API) will return XML data. Converting this data to a structured data and confirming that all the transactions are synced correctly can be a daunting tasks. 
 
 
 # Citations
