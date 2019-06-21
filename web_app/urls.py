@@ -1,10 +1,9 @@
 from django.conf.urls import  url, handler404,handler500
 
 import web_app.views
-from django.conf import settings
-# from web_app import views as core_views
 
-
+#For details check Django URL documenation design under:
+#https://docs.djangoproject.com/en/1.9/topics/http/urls/
 
 #URL goes in sequence based on priority, order is important
 urlpatterns = [

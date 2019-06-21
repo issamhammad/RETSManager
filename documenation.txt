@@ -50,7 +50,7 @@ Operating Modes
 -------------------------------------------------------------------------------------------------------------------------------
 This framework can be used in two modes:
 
-#1- Fully automated updates using a combination of Docker-Compose + Redis + Celery. This enables automatic periodic updates.
+#1- Fully automated updates using a combination of Docker-Compose + Redis + Celery + Nginx. This enables automatic periodic updates.
 
 To use in the fully automated mode, install docker-compose then build and run the containers:
 --docker-compose build

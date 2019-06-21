@@ -1,7 +1,11 @@
 from django.db import models
 
+#Django Models are created to match the DDF design which is described under:
+#https://www.crea.ca/wp-content/uploads/2016/02/Data_Distribution_Facility_Data_Feed_Technical_Documentation.pdf
 
-#This is the core class for all the Properties .. DDF and User Uploaded.
+#For details on Django Models please check:
+#https://docs.djangoproject.com/en/1.9/topics/db/models/
+
 class Property(models.Model):
     DDF_ID = 	  models.TextField(blank=True, null=True,unique=True, default=None)
     ListingType=  models.TextField(default='DDF')
