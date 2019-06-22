@@ -9,10 +9,10 @@ tags:
   - Celery
 authors:
   - name: Issam Hammad
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0002-1895-3438
     affiliation: 1
   - name: Kamal El-Sankary
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0001-8104-6913
     affiliation: 1
 affiliations:
  - name: Electrical and Computer Engineering Department, Halifax, NS, Canada.
