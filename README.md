@@ -169,7 +169,7 @@ The steps below are tested using Windows:
     14- Also you can use any SQLite browser to check your DB. a new database file is created under the root DIR.
 
 -------------------------------------------------------------------------------------------------------------------------------
-Docker Installation: (This is for production-ready deployments).
+Docker Installation: (For full automation Docker + Redis + Celery + Nginx)
 -------------------------------------------------------------------------------------------------------------------------------
 
 This enables fully automated periodic updates using a combination of Docker-Compose + Redis + Celery + Nginx.
