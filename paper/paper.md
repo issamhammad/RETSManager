@@ -36,7 +36,9 @@ The platform is structed
 
 # Figures
 
-Figures can be included like this: ![Example figure.](Figure.png)
+Figures can be included like this: ![Platform Architecture.](Figure.png)
+
+
 
 
 # References
