@@ -37,7 +37,7 @@ The project was constructed based on CREA DDF's payload structure which is descr
 
 
 
-![Platform Architecture.](Figure.png)
+&nbsp;&nbsp;![Platform Architecture.](Figure.png)&nbsp;&nbsp;
 
 # Figures
 
