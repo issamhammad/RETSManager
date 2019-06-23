@@ -34,9 +34,11 @@ Studying real-estate market trends is extremely popular. Real-estate market heal
 
 The project was constructed based on CREA DDF's payload structure which is described in details under [@crea]. Therefore, it can be used directly without any modifications to build a dataset for the purpose of conducting research related to the Canadian housing market. Additionally, with minor modifications, the platform can support any MLS server world-wide. Testing was conducted using real live data by obtaining an API key through collaborating with a real-estate agent. However, the repository includes only the sample username and password provided by CREA for the purpose of testing as obtaining a full-access API keys requires approval from CREA.  The platform is constructed from multiple hierarchical models which converts the raw XML data obtained from MLS server to a fully synced structured database with synced images. Figure 1 illustrates the architecture of this platform. For applying RETS commands, a thin RETS client was imported and slighly modified [@refindlyllc]. The remaining parts of the projects are natively developed. The 'ddf_client' app is responsible on updating and syncing listing data and images from the MLS server using the then RETS client 'rets_lib'. To follow [@crea] guidelines, 'ddf_client' downloads all active records since the last update based on a timestamp. Then it requests a master-list of all the available listings ids. Finally, it download missing listings through request by id after comparing the database listings plus the received active listings againts the master-list. 'ddf_client' also downloads and syncs all the photos and identifies the removed listings. Additionally, the DDF API [@crea] limits the requests to 100 records each. The clients takes care of this issue as well by handling multiple requests to download all the available records. The 'ddf_manager' moves the data received by the 'ddf_client' to the database. 
 
+![Platform Architecture.](Figure.png)
+
 # Figures
 
-Figures can be included like this: ![Platform Architecture.](Figure.png)
+Figures can be included like this: 
 
 
 
