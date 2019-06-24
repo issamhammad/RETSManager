@@ -151,7 +151,8 @@ The steps below are tested using Windows:
         $py manage.py makemigrations web_app
     6- Apply Migrations
         $py manage.py migrate
-    7- Startserver
+    7- Startserver 
+        *Select a [port]
         $py manage.py runserver [port]
     8- Using google chrome go to:
         http://127.0.0.1:[port]/
@@ -159,16 +160,18 @@ The steps below are tested using Windows:
     9- If the documentation was loaded then the deployment was successful.
 
     10- Try a sample update using http://127.0.0.1:[port]/test/
+        *You have to refresh the browser twice at least for the initial deployment. First attempt will initialize the timestamp.
         **This step will use a sample free username/password by CREA to download sample data and images.
+        ***Wait until the log file output appears on the browser before initiating the second refresh.
 
     11- Note that CREA server for samples login is glitchy. So you might have to refresh the page more than once to get results.
         ** You might get this error "RETS Server Failure, Returned Code: 20701, Message: Not Logged In"
 
-    12- After the test is completed. The page will show the log file with the update status.
+    12- If the update is successful the log file will show "Server updated successfully". Note that the log file records all attempts. So confirm that you are looking at the right attempted data based on the time.
 
-    13- If the operation was successful you will find a newly created folder [media] in your root DIR
+    13- If the update was successful you will find a newly created folder [media] in your root DIR
 
-    14- Also you can use any SQLite browser to check your DB. a new database file is created under the root DIR.
+    14- You can use any SQLite browser to check the data in your DB. The database file is created under the root DIR.
 
 -------------------------------------------------------------------------------------------------------------------------------
 Docker Installation: (For full automation Docker + Redis + Celery + Nginx)
