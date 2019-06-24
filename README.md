@@ -143,7 +143,7 @@ The steps below are tested using Windows:
         $git clone https://github.com/issamhammad/RETS_Manager
 
     4- Install Requirements
-        $cd RETS_MANAGER
+        $cd RETS-MANAGER
         $pip install -r requirements.txt
     5- Make Django migrations to web_app
         $py manage.py makemigrations web_app
@@ -184,7 +184,7 @@ For other platforms installing docker and docker-compose is a prerequisite.
 
     2- Clone the repo using '$git clone https://github.com/issamhammad/RETS_Manager'
 
-    3- $cd RETS_Manager
+    3- $cd RETS-Manager
 
     4- Edit RETS_Manager/setting.py to enable DOCKER=TRUE (This will enable PostgreSQL database which is used via a docker-container rather than the local SQLite)
 
