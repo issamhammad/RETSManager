@@ -165,7 +165,7 @@ The steps below are tested using Windows:
         ***Wait until the log file output appears on the browser before initiating the second refresh.
 
     11- Note that CREA server for samples login is glitchy. So you might have to refresh the page more than once to get results.
-        ** You might get this error "RETS Server Failure, Returned Code: 20701, Message: Not Logged In"
+        *You might get this error "RETS Server Failure, Returned Code: 20701, Message: Not Logged In"
 
     12- If the update is successful the log file will show "Server updated successfully". 
     Note that the log file records all attempts. Confirm that you are looking at the right attempted data based on the time.
