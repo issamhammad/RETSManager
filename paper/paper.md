@@ -1,5 +1,5 @@
 ---
-title: 'RETS-Manager: A production ready platform for fetching and syncing real estate data and images'
+title: 'RETS-Manager: A platform for fetching and syncing real estate data'
 tags:
   - Python
   - Django
