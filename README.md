@@ -141,7 +141,7 @@ The steps below are tested using Windows:
         $Scripts\activate
 
     3- clone this repo
-        (if you dont have git -- please install (https://git-scm.com/download/win).
+        *if you dont have git -- please install (https://git-scm.com/download/win).
         $git clone https://github.com/issamhammad/RETS-Manager
 
     4- Install Requirements
