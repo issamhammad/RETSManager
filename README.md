@@ -167,7 +167,8 @@ The steps below are tested using Windows:
     11- Note that CREA server for samples login is glitchy. So you might have to refresh the page more than once to get results.
         ** You might get this error "RETS Server Failure, Returned Code: 20701, Message: Not Logged In"
 
-    12- If the update is successful the log file will show "Server updated successfully". Note that the log file records all attempts. Confirm that you are looking at the right attempted data based on the time.
+    12- If the update is successful the log file will show "Server updated successfully". 
+    Note that the log file records all attempts. Confirm that you are looking at the right attempted data based on the time.
 
     13- If the update was successful you will find a newly created folder [media] in your root DIR
 
@@ -191,7 +192,8 @@ For other platforms installing docker and docker-compose is a prerequisite.
 
     3- $cd RETS-Manager
 
-    4- Edit RETS_Manager/setting.py to enable DOCKER=TRUE (This will enable PostgreSQL database which is used via a docker-container rather than the local SQLite)
+    4- Edit RETS_Manager/setting.py to enable DOCKER=TRUE 
+    (This will enable PostgreSQL database which is used via a docker-container rather than the local SQLite)
 
     5- [Optional]: Adjust update period by modifying ddf_manager/ddf.py
 
