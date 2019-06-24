@@ -140,7 +140,7 @@ The steps below are tested using Windows:
         $Scripts\Activate
 
     3- clone this repo
-        $git clone https://github.com/issamhammad/RETS_Manager
+        $git clone https://github.com/issamhammad/RETS-Manager
 
     4- Install Requirements
         $cd RETS-MANAGER
@@ -182,7 +182,7 @@ For other platforms installing docker and docker-compose is a prerequisite.
 
     1- Create this Digital Ocean Instance and log in using ssh.
 
-    2- Clone the repo using '$git clone https://github.com/issamhammad/RETS_Manager'
+    2- Clone the repo using '$git clone https://github.com/issamhammad/RETS-Manager'
 
     3- $cd RETS-Manager
 
