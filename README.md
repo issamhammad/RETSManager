@@ -133,13 +133,15 @@ The following steps describe details on how to run this platform.
 The steps below are tested using Windows:
 
     1- Start by creating your own virtual environment
+        (Tested with python 3.5.4)
         $py -m venv rets
 
     2- Activate the virtual environment
         $cd rets
-        $Scripts\Activate
+        $Scripts\activate
 
     3- clone this repo
+        (if you dont have git -- please install (https://git-scm.com/download/win).
         $git clone https://github.com/issamhammad/RETS-Manager
 
     4- Install Requirements
