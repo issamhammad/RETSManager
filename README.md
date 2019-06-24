@@ -141,7 +141,7 @@ The steps below are tested using Windows:
         $Scripts\activate
 
     3- clone this repo
-        *if you dont have git -- please install (https://git-scm.com/download/win).
+        *if you don't have git -- please install (https://git-scm.com/download/win).
         $git clone https://github.com/issamhammad/RETS-Manager
 
     4- Install Requirements
@@ -160,14 +160,14 @@ The steps below are tested using Windows:
     9- If the documentation was loaded then the deployment was successful.
 
     10- Try a sample update using http://127.0.0.1:[port]/test/
-        *You have to refresh the browser twice at least for the initial deployment. First attempt will initialize the timestamp.
+        *You have to refresh the browser twice at least for the initial deployment. The first attempt will initialize the timestamp.
         **This step will use a sample free username/password by CREA to download sample data and images.
         ***Wait until the log file output appears on the browser before initiating the second refresh.
 
     11- Note that CREA server for samples login is glitchy. So you might have to refresh the page more than once to get results.
         ** You might get this error "RETS Server Failure, Returned Code: 20701, Message: Not Logged In"
 
-    12- If the update is successful the log file will show "Server updated successfully". Note that the log file records all attempts. So confirm that you are looking at the right attempted data based on the time.
+    12- If the update is successful the log file will show "Server updated successfully". Note that the log file records all attempts. Confirm that you are looking at the right attempted data based on the time.
 
     13- If the update was successful you will find a newly created folder [media] in your root DIR
 
