@@ -145,7 +145,7 @@ The steps below are tested using Windows:
         $git clone https://github.com/issamhammad/RETSManager
 
     4- Install Requirements
-        $cd RETS-MANAGER
+        $cd RETSMANAGER
         $pip install -r requirements.txt
     5- Make Django migrations to web_app
         $py manage.py makemigrations web_app
