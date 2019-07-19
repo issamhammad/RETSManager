@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------------------------------------------------------
-RETS-MANAGER - Developed by: Issam Hammad
+RETS MANAGER - Developed by: Issam Hammad
 -------------------------------------------------------------------------------------------------------------------------------
 Introduction
 -------------------------------------------------------------------------------------------------------------------------------
@@ -142,7 +142,7 @@ The steps below are tested using Windows:
 
     3- clone this repo
         *if you don't have git -- please install (https://git-scm.com/download/win).
-        $git clone https://github.com/issamhammad/RETS-Manager
+        $git clone https://github.com/issamhammad/RETSManager
 
     4- Install Requirements
         $cd RETS-MANAGER
@@ -188,9 +188,9 @@ For other platforms installing docker and docker-compose is a prerequisite.
 
     1- Create this Digital Ocean Instance and log in using ssh.
 
-    2- Clone the repo using '$git clone https://github.com/issamhammad/RETS-Manager'
+    2- Clone the repo using '$git clone https://github.com/issamhammad/RETSManager'
 
-    3- $cd RETS-Manager
+    3- $cd RETSManager
 
     4- Edit RETS_Manager/setting.py to enable DOCKER=TRUE 
     (This will enable PostgreSQL database which is used via a docker-container rather than the local SQLite)
