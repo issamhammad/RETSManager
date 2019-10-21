@@ -39,13 +39,6 @@ Also, the ddf_manager/db_mapping.py file has to be adjusted.
 Other changes in the ddf_manager might be required.
 
 -------------------------------------------------------------------------------------------------------------------------------
-Demo
--------------------------------------------------------------------------------------------------------------------------------
-You can see a demo for this framework using real data by checking: https://rentmenow.ca
-
-This framework is used in this website to retrive all the data and images.
-
--------------------------------------------------------------------------------------------------------------------------------
 Enabling S3
 ------------------------------------------------------------------------------------------------------------------------------
 To enable S3 for images go to ddf_manager/aws_settings.py and enter your AWS info.
