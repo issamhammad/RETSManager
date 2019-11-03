@@ -1,6 +1,16 @@
 -------------------------------------------------------------------------------------------------------------------------------
 RETS MANAGER - Developed by: Issam Hammad
 -------------------------------------------------------------------------------------------------------------------------------
+Paper & Citation
+-------------------------------------------------------------------------------------------------------------------------------
+For academic use of this code. Please use the following citation
+
+Hammad, Issam, Kamal El-Sankary, and Holly Hornibrook. "RETSManager: Real-estate database builder and synchronizer." SoftwareX 10 (2019): 100351.
+
+Please also refer to the following paper for details about this repository.
+
+https://www.sciencedirect.com/science/article/pii/S235271101930250X
+
 Introduction
 -------------------------------------------------------------------------------------------------------------------------------
 RETS_Manager is a production ready framework for reading, storing and syncing real-estate data including images.
