@@ -1,4 +1,4 @@
-Django==1.11.9
+Django==2.2.24
 celery==4.1.1
 geocoder==1.27.0
 boto3==1.6.16
