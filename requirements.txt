@@ -1,5 +1,5 @@
 Django==1.11.9
-celery==4.1.1
+celery==5.2.2
 geocoder==1.27.0
 boto3==1.6.16
 gunicorn==19.6.0
